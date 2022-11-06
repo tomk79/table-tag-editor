@@ -1,0 +1,63 @@
+{
+  "name": "@tomk79/table-tag-editor",
+  "version": "0.1.0",
+  "private": false,
+  "description": "",
+  "main": "src/js/main.js",
+  "scripts": {
+    "dev": "npm run development",
+    "development": "mix",
+    "watch": "mix watch",
+    "watch-poll": "mix watch -- --watch-options-poll=1000",
+    "hot": "mix watch --hot",
+    "prod": "npm run production",
+    "production": "mix --production",
+    "start": "node ./tests/app/server/server.js;",
+    "up": "node ./tests/app/server/server.js;",
+    "preview": "open http://127.0.0.1:3000/;",
+    "test": "mocha --ui tdd ./tests/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomk79/table-tag-editor.git"
+  },
+  "author": "Tomoya Koyanagi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tomk79/table-tag-editor/issues"
+  },
+  "homepage": "https://github.com/tomk79/table-tag-editor#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "axios": "^0.25",
+    "babel-loader": "^8.2.4",
+    "body-parser": "^1.17.1",
+    "bootstrap": "^4.3.1",
+    "cheerio": "*",
+    "dateformat": "^5.0.3",
+    "diff2html": "^3.4.13",
+    "express": "^4.15.2",
+    "express-session": "^1.17.2",
+    "fs-extra": "^7.0.1",
+    "gitparse79": "github:tomk79/node-git-parser#develop",
+    "gitui79": "github:tomk79/gitui79.js#develop",
+    "iterate79": "^1.1.1",
+    "jquery": "^3.6.0",
+    "laravel-mix": "^6.0.6",
+    "lodash": "^4.17.21",
+    "marked": "^4.0.12",
+    "mocha": "^3.2.0",
+    "postcss": "^8.1.14",
+    "px2style": "github:pickles2/px2style#develop",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "resolve-url-loader": "^5.0.0",
+    "sass": "^1.49.9",
+    "sass-loader": "^12.6.0",
+    "twig-loader": "^0.5.5",
+    "url-parse": "^1.5.10",
+    "utils79": "^0.0.5"
+  }
+}

@@ -1,0 +1,9 @@
+.table-tag-editor {
+	display: flex;
+	flex-direction: column;
+
+	// 元の textarea を隠す
+	&+textarea {
+		display: none !important;
+	}
+}

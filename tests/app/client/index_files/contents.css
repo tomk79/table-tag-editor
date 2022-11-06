@@ -1,0 +1,17 @@
+:root {
+	--px2-main-color: #00a0e6;
+	--px2-text-color: #333;
+	--px2-background-color: #f9f9f9;
+}
+body {
+	font-size: medium;
+}
+#cont-table-tag-editor {
+	width: 700px;
+	max-width: 100%;
+	height: 500px;
+}
+body.px2-darkmode {
+	background-color: #333;
+	color: #f9f9f9;
+}
