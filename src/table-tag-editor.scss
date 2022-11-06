@@ -1,6 +1,37 @@
 .table-tag-editor {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
+	gap: 10px;
+
+	&__visual-editor,
+	&__src-editor {
+		width: 50%;
+	}
+
+	&__visual-editor-table-wrap {
+		overflow: auto;
+		height: 400px;
+	}
+
+	textarea.table-tag-editor__src {
+		display: block;
+		width: 100%;
+		height: 400px;
+		box-sizing: border-box;
+	}
+
+	table.table-tag-editor__visual-editor-table {
+		border: 1px solid #999;
+		border-collapse: collapse;
+		th, td {
+			border: 1px solid #999;
+			background-color: #ffffff;
+			padding: 2px 8px;
+		}
+		th {
+			background-color: #f8f8f8;
+		}
+	}
 
 	// 元の textarea を隠す
 	&+textarea {

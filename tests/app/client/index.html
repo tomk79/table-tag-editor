@@ -12,7 +12,13 @@
 
 <h1>table-tag-editor TEST</h1>
 <div class="cont-canvas">
-	<textarea id="cont-table-tag-editor"></textarea>
+	<textarea id="cont-table-tag-editor"><tr><td>preset cell</td></tr></textarea>
+</div>
+
+<div>
+	<ul>
+		<li><button type="button" class="cont-button-preview-value">preview value</button></li>
+	</ul>
 </div>
 
 <!-- jQuery -->
@@ -23,6 +29,12 @@
 
 <!-- contents.js -->
 <script src="./index_files/contents.js"></script>
+
+<script>
+$('.cont-button-preview-value').on('click', function(){
+	alert( $('#cont-table-tag-editor').val() );
+});
+</script>
 
 	</body>
 </html>
