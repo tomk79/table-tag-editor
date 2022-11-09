@@ -10,16 +10,19 @@ module.exports = function( elm ){
 	var $elms = {
 		"main": $(templates.mainframe()),
 		"targetTextarea": $(elm),
-		"srcEditor": null,
+		"toolbar": null,
+		"visualEditor": null,
 		"previewTable": null,
+		"htmlSrcEditor": null,
+		"srcTextarea": null,
 	};
 
 	function updatePreview(){
-		$elms.previewTable.html( $elms.srcEditor.val() );
+		$elms.previewTable.html( $elms.srcTextarea.val() );
 	}
 
 	function save(){
-		$elms.targetTextarea.val( $elms.srcEditor.val() );
+		$elms.targetTextarea.val( $elms.srcTextarea.val() );
 	}
 
 	// Initialize
@@ -27,21 +30,37 @@ module.exports = function( elm ){
 		.then(function(){ return new Promise(function(rlv, rjt){
 			$elms.targetTextarea.before( $elms.main );
 
-			$elms.srcEditor = $elms.main.find('textarea.table-tag-editor__src');
+			$elms.toolbar = $elms.main.find('.table-tag-editor__toolbar');
+			$elms.visualEditor = $elms.main.find('.table-tag-editor__visual-editor');
 			$elms.previewTable = $elms.main.find('table.table-tag-editor__visual-editor-table');
+			$elms.htmlSrcEditor = $elms.main.find('.table-tag-editor__src-editor');
+			$elms.srcTextarea = $elms.main.find('textarea.table-tag-editor__src');
 
-			$elms.srcEditor.val( $elms.targetTextarea.val() );
+			$elms.srcTextarea.val( $elms.targetTextarea.val() );
 			updatePreview();
 			rlv();
 		}); })
 		.then(function(){ return new Promise(function(rlv, rjt){
 			var textareaChangedTimer;
-			$elms.srcEditor.on('change.table-tag-editor keyup.table-tag-editor', function(){
+			$elms.srcTextarea.on('change.table-tag-editor keyup.table-tag-editor', function(){
 				clearTimeout( textareaChangedTimer );
 				textareaChangedTimer = setTimeout(function(){
 					save();
 					updatePreview();
 				}, 200);
+			});
+			rlv();
+		}); })
+		.then(function(){ return new Promise(function(rlv, rjt){
+			$elms.htmlSrcEditor.hide();
+			$elms.toolbar.find('.table-tag-editor__btn-toggle-editor-mode').on('click.table-tag-editor', function(){
+				if( $elms.visualEditor.is(':visible') ){
+					$elms.visualEditor.hide();
+					$elms.htmlSrcEditor.show();
+				}else{
+					$elms.htmlSrcEditor.hide();
+					$elms.visualEditor.show();
+				}
 			});
 			rlv();
 		}); })
