@@ -23,13 +23,19 @@ module.exports = function( elm ){
 	}
 
 	function updateHtmlSrc(){
-		$elms.previewTable.find('th,td').removeAttr('contenteditable');
-		$elms.srcTextarea.val( $elms.previewTable.html() );
-		$elms.previewTable.find('th,td').attr({'contenteditable': true});
-		save();
+		var src = $elms.previewTable.html();
+		var $tmpContainer = $('<div>');
+		$tmpContainer.html(src);
+		$tmpContainer.find('th,td').removeAttr('contenteditable');
+		$elms.srcTextarea.val( $tmpContainer.html() );
 	}
 
 	function save(){
+		if( $elms.visualEditor.is(':visible') ){
+			updateHtmlSrc();
+		}else{
+			updatePreview();
+		}
 		$elms.targetTextarea.val( $elms.srcTextarea.val() );
 	}
 
@@ -53,15 +59,17 @@ module.exports = function( elm ){
 			$elms.srcTextarea.on('change.table-tag-editor keyup.table-tag-editor', function(){
 				clearTimeout( textareaChangedTimer );
 				textareaChangedTimer = setTimeout(function(){
-					save();
-					updatePreview();
+					if( $elms.htmlSrcEditor.is(':visible') ){
+						save();
+					}
 				}, 200);
 			});
 
 			// DOMの変更を監視する
 			var observer = new MutationObserver(function(records){
-				console.log('=-=-=-=-= updated', records);
-				updateHtmlSrc();
+				if( $elms.visualEditor.is(':visible') ){
+					save();
+				}
 			})
 			observer.observe($elms.previewTable.get(0), {
 				"attributes": false, // 属性変化の監視
@@ -77,13 +85,11 @@ module.exports = function( elm ){
 		.then(function(){ return new Promise(function(rlv, rjt){
 			$elms.htmlSrcEditor.hide();
 			$elms.toolbar.find('.table-tag-editor__btn-toggle-editor-mode').on('click.table-tag-editor', function(){
+				save();
 				if( $elms.visualEditor.is(':visible') ){
-					updateHtmlSrc();
-
 					$elms.visualEditor.hide();
 					$elms.htmlSrcEditor.show();
 				}else{
-					updatePreview();
 					$elms.htmlSrcEditor.hide();
 					$elms.visualEditor.show();
 				}
