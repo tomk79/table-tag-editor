@@ -11,15 +11,80 @@
 	<body class="_px2-darkmode">
 
 <h1>table-tag-editor TEST</h1>
-<div class="cont-canvas">
-	<textarea id="cont-table-tag-editor"><tr><td>preset cell</td></tr></textarea>
-</div>
 
+<h2>001</h2>
+<div class="cont-canvas">
+	<textarea id="cont-table-tag-editor-001"><tr>
+	<th>preset cell</th>
+	<td>preset cell</td>
+	<td>preset cell</td>
+</tr>
+<tr>
+	<th>preset cell</th>
+	<td>preset cell</td>
+	<td>preset cell</td>
+</tr>
+<tr>
+	<th>preset cell</th>
+	<td>preset cell</td>
+	<td>preset cell</td>
+</tr>
+</textarea>
+</div>
 <div>
 	<ul>
-		<li><button type="button" class="cont-button-preview-value">preview value</button></li>
+		<li><button type="button" class="cont-button-preview-value-001">preview value</button></li>
 	</ul>
 </div>
+
+<h2>002</h2>
+<div class="cont-canvas">
+	<textarea id="cont-table-tag-editor-002"><thead>
+<tr>
+	<th>preset cell</th>
+	<th>preset cell</th>
+	<th>preset cell</th>
+	<th>preset cell</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<th rowspan="2">preset cell</th>
+	<td>preset cell</td>
+	<td>preset cell</td>
+	<td>preset cell</td>
+</tr>
+<tr>
+	<td>preset cell</td>
+	<td rowspan="2" colspan="2">preset cell</td>
+</tr>
+<tr>
+	<th>preset cell</th>
+	<td>preset cell</td>
+</tr>
+<tr>
+	<th>preset cell</th>
+	<td>preset cell</td>
+	<td>preset cell</td>
+	<td>preset cell</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+	<th>preset cell</th>
+	<th>preset cell</th>
+	<th>preset cell</th>
+	<th>preset cell</th>
+</tr>
+</tfoot>
+</textarea>
+</div>
+<div>
+	<ul>
+		<li><button type="button" class="cont-button-preview-value-002">preview value</button></li>
+	</ul>
+</div>
+
 
 <!-- jQuery -->
 <script src="./libs/scripts/jquery-3.4.1.min.js"></script>
@@ -31,8 +96,11 @@
 <script src="./index_files/contents.js"></script>
 
 <script>
-$('.cont-button-preview-value').on('click', function(){
-	alert( $('#cont-table-tag-editor').val() );
+$('.cont-button-preview-value-001').on('click', function(){
+	alert( $('#cont-table-tag-editor-001').val() );
+});
+$('.cont-button-preview-value-002').on('click', function(){
+	alert( $('#cont-table-tag-editor-002').val() );
 });
 </script>
 

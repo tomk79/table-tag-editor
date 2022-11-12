@@ -64,6 +64,8 @@ module.exports = function( main, $, $elms ){
 					"innerHTML": $elmCell.html(),
 					"width": $elmCell.width(),
 					"height": $elmCell.height(),
+					"colspan": Number($elmCell.attr('colspan') || 1),
+					"rowspan": Number($elmCell.attr('rowspan') || 1),
 				};
 			});
 			if( scanedTable.cols < rtn.length ){
