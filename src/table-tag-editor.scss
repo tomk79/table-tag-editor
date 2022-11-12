@@ -8,9 +8,41 @@
 			margin: 0;
 			padding: 0;
 			display: flex;
+			justify-content: space-between;
 			li {
 				list-style-type: none;
+				display: flex;
 			}
+			li.table-tag-editor__toolbar-tools {
+				flex-grow: 10;
+				overflow: auto;
+			}
+		}
+
+		button {
+			border: 1px solid #ddd;
+			padding: 6px 10px;
+			font-size: 14px;
+			background-color: #fff;
+			border-radius: 5px;
+			cursor: pointer;
+			&:hover {
+				border: 1px solid #666;
+				background-color: #e9e9e9;
+			}
+			&[disabled],
+			&[disabled]:hover {
+				border: 1px solid #ddd;
+				background-color: #fff;
+				color: #ddd;
+				cursor: auto;
+			}
+		}
+	}
+	&__tool {
+		&--on[disabled] {
+			background-color: #000;
+			color: #fff;
 		}
 	}
 
@@ -22,6 +54,9 @@
 	&__visual-editor-table-wrap {
 		overflow: auto;
 		height: 400px;
+		position: relative;
+		box-sizing: border-box;
+		padding: 40px;
 	}
 
 	textarea.table-tag-editor__src {

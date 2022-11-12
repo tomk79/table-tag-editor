@@ -7,7 +7,10 @@
 
 <script>
 var tableTagEditor = new TableTagEditor(
-    document.getElementById('table-tag-editor')
+    document.getElementById('table-tag-editor'),
+    {
+        "lang": "en",
+    }
 );
 </script>
 ```
