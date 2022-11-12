@@ -3,6 +3,7 @@
  */
 module.exports = function( main, $, $elms ){
 	var _this = this;
+	var scanedTable = {};
 
 	/**
 	 * ツールバーをリセットする
@@ -34,5 +35,61 @@ module.exports = function( main, $, $elms ){
 				console.log('-----', this.innerHTML);
 			})
 			;
+
+		scanTable();
 	}
+
+
+	/**
+	 * テーブルの内容をスキャンする
+	 */
+	function scanTable(){
+		scanedTable = {}; // initialize
+		scanedTable.thead = [];
+		scanedTable.tbody = [];
+		scanedTable.tfoot = [];
+		scanedTable.isDirectTr = false;
+		scanedTable.cols = 0;
+
+		if( $elms.previewTable.find('>tr').length ){
+			scanedTable.isDirectTr = true;
+		}
+
+		function scanRow( indexRow, $tr ){
+			var rtn = [];
+			$tr.find('>th,>td').each(function(indexCol, elmCell){
+				$elmCell = $(elmCell);
+				rtn[indexCol] = {
+					"tagName": elmCell.tagName.toLowerCase(),
+					"innerHTML": $elmCell.html(),
+					"width": $elmCell.width(),
+					"height": $elmCell.height(),
+				};
+			});
+			if( scanedTable.cols < rtn.length ){
+				scanedTable.cols = rtn.length;
+			}
+			return rtn;
+		}
+
+		$elms.previewTable.find('>thead>tr').each(function(index, elmTr){
+			scanedTable.thead.push({
+				"cols": scanRow( index, $(elmTr) ),
+			});
+		});
+		$elms.previewTable.find('>tfoot>tr').each(function(index, elmTr){
+			scanedTable.tfoot.push({
+				"cols": scanRow( index, $(elmTr) ),
+			});
+		});
+		$elms.previewTable.find('>tbody>tr,>tr').each(function(index, elmTr){
+			scanedTable.tbody.push({
+				"cols": scanRow( index, $(elmTr) ),
+			});
+		});
+
+		console.log('--- scanedTable:', scanedTable);
+		return;
+	}
+
 }
