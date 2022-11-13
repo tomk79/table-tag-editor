@@ -13,8 +13,11 @@ module.exports = function( main, $ ){
 		var rtn = [];
 		var $cells = $tr.find('>th,>td');
 		var totalSpanedRows = 0;
+		var indexCol = 0;
 
-		$cells.each(function(indexCol, elmCell){
+		$cells.each(function(currentIndexCol, elmCell){
+			indexCol = currentIndexCol;
+
 			while( reservedCells[indexRow] && reservedCells[indexRow][indexCol+totalSpanedRows] ){
 				// colspan, rowspan で予約されていた場合
 				rtn[indexCol+totalSpanedRows] = {
@@ -46,13 +49,26 @@ module.exports = function( main, $ ){
 				for(var iCol = 0; iCol < rtn[indexCol+totalSpanedRows].colspan; iCol ++){
 					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol] = reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol] || {};
 					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].row = indexRow;
-					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].col = indexCol;
+					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].col = indexCol+totalSpanedRows;
 				}
 			}
 		});
 
 
-		// TODO: 予約されたセルがさらに右側に広がっているとき、ここで拾う必要がある
+		indexCol ++;
+		while( reservedCells[indexRow] && reservedCells[indexRow][indexCol+totalSpanedRows] ){
+			// colspan, rowspan で予約されていた場合
+			rtn[indexCol+totalSpanedRows] = {
+				"tagName": null,
+				"innerHTML": null,
+				"width": null,
+				"height": null,
+				"colspan": null,
+				"rowspan": null,
+				"reference": reservedCells[indexRow][indexCol+totalSpanedRows],
+			}
+			totalSpanedRows ++;
+		}
 
 
 		if( scanedTable.cols < rtn.length ){
