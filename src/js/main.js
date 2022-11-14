@@ -18,7 +18,7 @@ module.exports = function( elm, options ){
 		"htmlSrcEditor": null,
 		"srcTextarea": null,
 	};
-	var preview = new(require('./_Preview'))(main, $, $elms);
+	var visual = new(require('./_Visual'))(main, $, $elms);
 	var htmlSrc = new(require('./_HtmlSrc'))(main, $, $elms);
 
 	options = options || {};
@@ -30,8 +30,9 @@ module.exports = function( elm, options ){
 	this.save = function(){
 		if( $elms.visualEditor.is(':visible') ){
 			htmlSrc.update();
+			visual.resetUi();
 		}else{
-			preview.update();
+			visual.update();
 		}
 		$elms.targetTextarea.val( $elms.srcTextarea.val() );
 	}
@@ -62,11 +63,12 @@ module.exports = function( elm, options ){
 			$elms.toolbarTools = $elms.main.find('.table-tag-editor__toolbar-tools');
 			$elms.visualEditor = $elms.main.find('.table-tag-editor__visual-editor');
 			$elms.previewTable = $elms.main.find('table.table-tag-editor__visual-editor-table');
+			$elms.visualEditorUi = $elms.main.find('.table-tag-editor__visual-editor-ui');
 			$elms.htmlSrcEditor = $elms.main.find('.table-tag-editor__src-editor');
 			$elms.srcTextarea = $elms.main.find('textarea.table-tag-editor__src');
 
 			$elms.srcTextarea.val( $elms.targetTextarea.val() );
-			preview.update();
+			visual.update();
 			rlv();
 		}); })
 		.then(function(){ return new Promise(function(rlv, rjt){
@@ -101,7 +103,8 @@ module.exports = function( elm, options ){
 
 			// プレビューモードからスタート
 			$elms.htmlSrcEditor.hide();
-			preview.resetToolbar();
+			visual.resetToolbar();
+			visual.resetUi();
 
 			// 編集モードの切り替え
 			$elms.toolbar.find('.table-tag-editor__btn-toggle-editor-mode').on('click.table-tag-editor', function(){
@@ -113,7 +116,7 @@ module.exports = function( elm, options ){
 				}else{
 					$elms.htmlSrcEditor.hide();
 					$elms.visualEditor.show();
-					preview.resetToolbar();
+					visual.resetToolbar();
 				}
 			});
 			rlv();

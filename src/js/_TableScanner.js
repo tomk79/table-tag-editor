@@ -41,6 +41,7 @@ module.exports = function( main, $ ){
 				"height": $elmCell.height(),
 				"colspan": Number($elmCell.attr('colspan') || 1),
 				"rowspan": Number($elmCell.attr('rowspan') || 1),
+				"offset": $elmCell.offset(),
 			};
 
 			// 連結されたセルを予約する
@@ -114,11 +115,9 @@ module.exports = function( main, $ ){
 					"cols": scanRow( indexRow, $(elmTr) ),
 				});
 			});
-			console.log('--- reservedCells:', sectionName, reservedCells);
 		});
 
-		console.log('--- scanedTable:', scanedTable);
-		return;
+		return scanedTable;
 	}
 
 }
