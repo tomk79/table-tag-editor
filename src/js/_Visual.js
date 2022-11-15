@@ -44,6 +44,8 @@ module.exports = function( main, $, $elms ){
 	this.resetUi = function(){
 		$elms.visualEditorUi.html('');
 		var offset = $elms.previewTable.offset();
+		var tableScanner = new TableScanner( main, $ );
+		scanedTable = tableScanner.scan($elms.previewTable);
 
 		// --------------------------------------
 		// 行追加ボタンを配置
@@ -63,16 +65,45 @@ module.exports = function( main, $, $elms ){
 					})
 					.on('click.table-tag-editor', function(e){
 						var $this = $(this);
-						alert($this.attr('data-row-number')); // TODO: 後ろに tr を追加する
+						var targetRowNumber = Number($this.attr('data-row-number'));
+						var $newRow = $('<tr>');
+						var rowspanIncrementedMemo = {};
+						for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
+							var tagName = 'td';
+
+							if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
+								// 結合セルの解決
+								(function(){
+									var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
+									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+										return;
+									}
+									var $tmpCell = $elms.previewTable.find('>tbody>tr, >tr').eq(tmpReference.domRow).find('th, td').eq(tmpReference.domCol);
+									rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+									var tmpRowspan = Number($tmpCell.attr('rowspan'));
+									if( !tmpRowspan ){ tmpRowspan = 1; }
+									tmpRowspan ++;
+									$tmpCell.attr({'rowspan': tmpRowspan});
+								})();
+							}else{
+								// td, or th を決める
+								if( scanedTable.tbody[targetRowNumber].cols[i].tagName ){
+									tagName = scanedTable.tbody[targetRowNumber].cols[i].tagName;
+								}
+
+								$newRow.append($('<'+tagName+'>')
+									.attr({'contenteditable': true})
+								);
+							}
+						}
+						$elms.previewTable.find('>tbody>tr, >tr').eq(targetRowNumber).after($newRow);
+						main.save();
 					});
 			})
 			;
 
 		// --------------------------------------
 		// 列追加ボタンを配置
-		var tableScanner = new TableScanner( main, $ );
-		scanedTable = tableScanner.scan($elms.previewTable);
-
 		for( var col = 0; scanedTable.tbody[0].cols.length > col; col ++ ){			
 			for( var row = 0; scanedTable.tbody.length > row; row ++ ){
 				if( !scanedTable.tbody[row].cols[col].offset ){
@@ -92,7 +123,7 @@ module.exports = function( main, $, $elms ){
 					})
 					.on('click.table-tag-editor', function(e){
 						var $this = $(this);
-						alert($this.attr('data-col-number')); // TODO: 後ろに tr を追加する
+						alert($this.attr('data-col-number')); // TODO: 後ろに td を追加する
 					});
 
 				break;

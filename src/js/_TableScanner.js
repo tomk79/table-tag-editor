@@ -21,13 +21,14 @@ module.exports = function( main, $ ){
 			while( reservedCells[indexRow] && reservedCells[indexRow][indexCol+totalSpanedRows] ){
 				// colspan, rowspan で予約されていた場合
 				rtn[indexCol+totalSpanedRows] = {
-					"tagName": null,
+					"tagName": reservedCells[indexRow][indexCol+totalSpanedRows].tagName,
 					"innerHTML": null,
 					"width": null,
 					"height": null,
 					"colspan": null,
 					"rowspan": null,
-					"reference": reservedCells[indexRow][indexCol+totalSpanedRows],
+					"offset": null,
+					"reference": reservedCells[indexRow][indexCol+totalSpanedRows].reference,
 				}
 				totalSpanedRows ++;
 			}
@@ -42,6 +43,7 @@ module.exports = function( main, $ ){
 				"colspan": Number($elmCell.attr('colspan') || 1),
 				"rowspan": Number($elmCell.attr('rowspan') || 1),
 				"offset": $elmCell.offset(),
+				"reference": null,
 			};
 
 			// 連結されたセルを予約する
@@ -49,8 +51,13 @@ module.exports = function( main, $ ){
 				reservedCells[indexRow+iRow] = reservedCells[indexRow+iRow] || [];
 				for(var iCol = 0; iCol < rtn[indexCol+totalSpanedRows].colspan; iCol ++){
 					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol] = reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol] || {};
-					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].row = indexRow;
-					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].col = indexCol+totalSpanedRows;
+					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].reference = {
+						"row": indexRow,
+						"col": indexCol+totalSpanedRows,
+						"domRow": indexRow,
+						"domCol": indexCol,
+					};
+					reservedCells[indexRow+iRow][indexCol+totalSpanedRows+iCol].tagName = elmCell.tagName.toLowerCase();
 				}
 			}
 		});
@@ -60,13 +67,14 @@ module.exports = function( main, $ ){
 		while( reservedCells[indexRow] && reservedCells[indexRow][indexCol+totalSpanedRows] ){
 			// colspan, rowspan で予約されていた場合
 			rtn[indexCol+totalSpanedRows] = {
-				"tagName": null,
+				"tagName": reservedCells[indexRow][indexCol+totalSpanedRows].tagName,
 				"innerHTML": null,
 				"width": null,
 				"height": null,
 				"colspan": null,
 				"rowspan": null,
-				"reference": reservedCells[indexRow][indexCol+totalSpanedRows],
+				"offset": null,
+				"reference": reservedCells[indexRow][indexCol+totalSpanedRows].reference,
 			}
 			totalSpanedRows ++;
 		}
