@@ -64,6 +64,8 @@ module.exports = function( main, $, $elms ){
 						"data-row-number": index,
 					})
 					.on('click.table-tag-editor', function(e){
+						// --------------------------------------
+						// 行を追加する
 						var $this = $(this);
 						var targetRowNumber = Number($this.attr('data-row-number'));
 						var $newRow = $('<tr>');
@@ -78,7 +80,7 @@ module.exports = function( main, $, $elms ){
 									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
 										return;
 									}
-									var $tmpCell = $elms.previewTable.find('>tbody>tr, >tr').eq(tmpReference.domRow).find('th, td').eq(tmpReference.domCol);
+									var $tmpCell = $elms.previewTable.find('>tbody>tr, >tr').eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
 									rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
 									var tmpRowspan = Number($tmpCell.attr('rowspan'));
 									if( !tmpRowspan ){ tmpRowspan = 1; }
@@ -122,8 +124,27 @@ module.exports = function( main, $, $elms ){
 						"data-col-number": col,
 					})
 					.on('click.table-tag-editor', function(e){
+						// --------------------------------------
+						// 列を追加する
 						var $this = $(this);
-						alert($this.attr('data-col-number')); // TODO: 後ろに td を追加する
+						var targetColNumber = Number($this.attr('data-col-number'));
+						var rowQueryList = [
+							{"section": "thead", "query": '>thead>tr',},
+							{"section": "tfoot", "query": '>tfoot>tr',},
+							{"section": "tbody", "query": '>tbody>tr,>tr',},
+						];
+						rowQueryList.forEach(function(rowQueryInfo, rowQueryIndex){
+							var colspanIncrementedMemo = {};
+							var $trs = $elms.previewTable.find(rowQueryInfo.query);
+							for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
+								var $newCol = $('<td>')
+									.attr({'contenteditable': true})
+								;
+								$trs.eq(rowIndex).find('>th, >td').eq(targetColNumber).after( $newCol );
+							}
+						});
+
+						main.save();
 					});
 
 				break;
