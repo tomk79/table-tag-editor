@@ -47,74 +47,84 @@ module.exports = function( main, $, $elms ){
 		var tableScanner = new TableScanner( main, $ );
 		scanedTable = tableScanner.scan($elms.previewTable);
 
+		var rowQueryList = [
+			{"section": "thead", "query": '>thead>tr',},
+			{"section": "tfoot", "query": '>tfoot>tr',},
+			{"section": "tbody", "query": '>tbody>tr,>tr',},
+		];
+
 		// --------------------------------------
 		// 行追加ボタンを配置
-		$elms.previewTable.find('>tbody>tr, >tr')
-			.each(function(index, trElm){
-				var $trElm = $(trElm);
-				var $btnAddAfter = $('<button class="table-tag-editor__ui-btn">(+)</button>');
-				$elms.visualEditorUi.append($btnAddAfter);
-				$btnAddAfter
-					.css({
-						"position": "absolute",
-						"left": 0,
-						"top": $trElm.offset().top - offset.top + 40 + $trElm.height() - 10,
-					})
-					.attr({
-						"data-row-number": index,
-					})
-					.on('click.table-tag-editor', function(e){
-						// --------------------------------------
-						// 行を追加する
-						var $this = $(this);
-						var targetRowNumber = Number($this.attr('data-row-number'));
-						var $newRow = $('<tr>');
-						var rowspanIncrementedMemo = {};
-						for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
-							var tagName = 'td';
+		rowQueryList.forEach(function(rowQueryInfo, rowQueryIndex){
+			$elms.previewTable.find(rowQueryInfo.query)
+				.each(function(index, trElm){
+					var $trElm = $(trElm);
+					var $btnAddAfter = $('<button class="table-tag-editor__ui-btn">+</button>');
+					$elms.visualEditorUi.append($btnAddAfter);
+					$btnAddAfter
+						.css({
+							"position": "absolute",
+							"left": 10,
+							"top": $trElm.offset().top - offset.top + 40 + $trElm.height() - 10,
+						})
+						.attr({
+							"data-row-number": index,
+						})
+						.on('click.table-tag-editor', function(e){
+							// --------------------------------------
+							// 行を追加する
+							var $this = $(this);
+							var targetRowNumber = Number($this.attr('data-row-number'));
+							var $newRow = $('<tr>');
+							var rowspanIncrementedMemo = {};
+							for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
+								var tagName = 'td';
 
-							var isCombinedCell = false;
-							if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
-								// 結合セルの解決
-								isCombinedCell = (function(){
-									var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
-									if( targetRowNumber < tmpReference.row ){
-										// 結合先が自身より後ろの場合
-										return false;
-									}
-									var $tmpCell = $elms.previewTable.find('>tbody>tr, >tr').eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
-									var tmpRowspan = Number($tmpCell.attr('rowspan'));
-									if( !tmpRowspan ){ tmpRowspan = 1; }
-									if( tmpRowspan >= 2 ){
-										// 2以上の場合のみ、結合されているものとみなす
-										if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+								var isCombinedCell = false;
+								if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
+									// 結合セルの解決
+									isCombinedCell = (function(){
+										var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
+										if( targetRowNumber < tmpReference.row ){
+											// 結合先が自身より後ろの場合
+											return false;
+										}
+										var $tmpCell = $elms.previewTable.find(rowQueryInfo.query).eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
+										var tmpRowspan = Number($tmpCell.attr('rowspan'));
+										if( !tmpRowspan ){ tmpRowspan = 1; }
+										if( tmpRowspan >= 2 ){
+											// 2以上の場合のみ、結合されているものとみなす
+											if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+												return true;
+											}
+											rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+
+											tmpRowspan ++;
+											$tmpCell.attr({'rowspan': tmpRowspan});
 											return true;
 										}
-										rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
-
-										tmpRowspan ++;
-										$tmpCell.attr({'rowspan': tmpRowspan});
-										return true;
-									}
-									return false;
-								})();
-							}
-							if( !isCombinedCell ){
-								// td, or th を決める
-								if( scanedTable.tbody[targetRowNumber].cols[i].tagName ){
-									tagName = scanedTable.tbody[targetRowNumber].cols[i].tagName;
+										return false;
+									})();
 								}
+								if( !isCombinedCell ){
+									// td, or th を決める
+									if( rowQueryInfo.section != 'tbody' ){
+										tagName = 'th';
+									}else if( scanedTable.tbody[targetRowNumber].cols[i].tagName ){
+										tagName = scanedTable.tbody[targetRowNumber].cols[i].tagName;
+									}
 
-								$newRow.append($('<'+tagName+'>')
-									.attr({'contenteditable': true})
-								);
+									$newRow.append($('<'+tagName+'>')
+										.attr({'contenteditable': true})
+									);
+								}
 							}
-						}
-						$elms.previewTable.find('>tbody>tr, >tr').eq(targetRowNumber).after($newRow);
-						main.save();
-					});
-			})
-			;
+							$elms.previewTable.find(rowQueryInfo.query).eq(targetRowNumber).after($newRow);
+							main.save();
+						});
+				})
+				;
+		});
 
 		// --------------------------------------
 		// 列追加ボタンを配置
@@ -124,13 +134,13 @@ module.exports = function( main, $, $elms ){
 					continue;
 				}
 
-				var $btnAddAfter = $('<button class="table-tag-editor__ui-btn">(+)</button>');
+				var $btnAddAfter = $('<button class="table-tag-editor__ui-btn">+</button>');
 				$elms.visualEditorUi.append($btnAddAfter);
 				$btnAddAfter
 					.css({
 						"position": "absolute",
-						"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 40 + scanedTable.tbody[row].cols[col].width - 10,
-						"top": 0,
+						"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 50 + scanedTable.tbody[row].cols[col].width - 0,
+						"top": 10,
 					})
 					.attr({
 						"data-col-number": col,
@@ -140,11 +150,6 @@ module.exports = function( main, $, $elms ){
 						// 列を追加する
 						var $this = $(this);
 						var targetColNumber = Number($this.attr('data-col-number'));
-						var rowQueryList = [
-							{"section": "thead", "query": '>thead>tr',},
-							{"section": "tfoot", "query": '>tfoot>tr',},
-							{"section": "tbody", "query": '>tbody>tr,>tr',},
-						];
 						rowQueryList.forEach(function(rowQueryInfo, rowQueryIndex){
 							var colspanIncrementedMemo = {};
 							var $trs = $elms.previewTable.find(rowQueryInfo.query);
@@ -179,6 +184,14 @@ module.exports = function( main, $, $elms ){
 								}
 								if( !isCombinedCell ){
 									// 実体セルの場合
+									try {
+										// td, or th を決める
+										if( rowQueryInfo.section != 'tbody' ){
+											tagName = 'th';
+										}else if( scanedTable[rowQueryInfo.section][rowIndex].cols[scanedCellInfo.col].tagName ){
+											tagName = scanedTable[rowQueryInfo.section][rowIndex].cols[scanedCellInfo.col].tagName;
+										}
+									} catch(e){}
 									var $newCol = $('<'+tagName+'>')
 										.attr({'contenteditable': true})
 									;
