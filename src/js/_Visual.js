@@ -150,16 +150,7 @@ module.exports = function( main, $, $elms ){
 							var $trs = $elms.previewTable.find(rowQueryInfo.query);
 							for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
 								var tagName = 'td';
-								var $newCol = $('<'+tagName+'>')
-									.attr({'contenteditable': true})
-								;
 								var scanedCellInfo = scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber];
-								if( scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber+1] ){
-									// 右隣のセルがある場合
-								}else{
-									// 最後の列の場合
-								}
-
 								var isCombinedCell = false;
 								if(scanedCellInfo.reference){
 									// 結合セルの解決
@@ -169,7 +160,7 @@ module.exports = function( main, $, $elms ){
 											// 結合先が自身より後ろの場合
 											return false;
 										}
-										var $tmpCell = $trs.eq(rowIndex).find('>th, >td').eq(scanedCellInfo.domCol);
+										var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
 										var tmpColspan = Number($tmpCell.attr('colspan'));
 										if( !tmpColspan ){ tmpColspan = 1; }
 										if( tmpColspan >= 2 ){
@@ -188,7 +179,12 @@ module.exports = function( main, $, $elms ){
 								}
 								if( !isCombinedCell ){
 									// 実体セルの場合
-									if( scanedCellInfo.reference && scanedTable[rowQueryInfo.section][scanedCellInfo.reference.row].cols[scanedCellInfo.reference.col].rowspan >= 2 && targetColNumber == 0 ){
+									var $newCol = $('<'+tagName+'>')
+										.attr({'contenteditable': true})
+									;
+									if( !scanedCellInfo.reference && scanedCellInfo.colspan && scanedCellInfo.colspan >= 2 ){
+										// 実体自身で、かつcolspanしている場合、挿入しない
+									}else if( scanedCellInfo.reference && scanedTable[rowQueryInfo.section][scanedCellInfo.reference.row].cols[scanedCellInfo.reference.col].rowspan >= 2 && targetColNumber == 0 ){
 										// 0列目に実体がない場合は、tr の先頭に挿入する。
 										$trs.eq(rowIndex).prepend( $newCol );
 									}else{
