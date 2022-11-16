@@ -73,21 +73,33 @@ module.exports = function( main, $, $elms ){
 						for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
 							var tagName = 'td';
 
+							var isCombinedCell = false;
 							if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
 								// 結合セルの解決
-								(function(){
+								isCombinedCell = (function(){
 									var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
-									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-										return;
+									if( targetRowNumber < tmpReference.row ){
+										// 結合先が自身より後ろの場合
+										return false;
 									}
 									var $tmpCell = $elms.previewTable.find('>tbody>tr, >tr').eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
-									rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
 									var tmpRowspan = Number($tmpCell.attr('rowspan'));
 									if( !tmpRowspan ){ tmpRowspan = 1; }
-									tmpRowspan ++;
-									$tmpCell.attr({'rowspan': tmpRowspan});
+									if( tmpRowspan >= 2 ){
+										// 2以上の場合のみ、結合されているものとみなす
+										if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+											return true;
+										}
+										rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+
+										tmpRowspan ++;
+										$tmpCell.attr({'rowspan': tmpRowspan});
+										return true;
+									}
+									return false;
 								})();
-							}else{
+							}
+							if( !isCombinedCell ){
 								// td, or th を決める
 								if( scanedTable.tbody[targetRowNumber].cols[i].tagName ){
 									tagName = scanedTable.tbody[targetRowNumber].cols[i].tagName;
@@ -137,10 +149,52 @@ module.exports = function( main, $, $elms ){
 							var colspanIncrementedMemo = {};
 							var $trs = $elms.previewTable.find(rowQueryInfo.query);
 							for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
-								var $newCol = $('<td>')
+								var tagName = 'td';
+								var $newCol = $('<'+tagName+'>')
 									.attr({'contenteditable': true})
 								;
-								$trs.eq(rowIndex).find('>th, >td').eq(targetColNumber).after( $newCol );
+								var scanedCellInfo = scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber];
+								if( scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber+1] ){
+									// 右隣のセルがある場合
+								}else{
+									// 最後の列の場合
+								}
+
+								var isCombinedCell = false;
+								if(scanedCellInfo.reference){
+									// 結合セルの解決
+									isCombinedCell = (function(){
+										var tmpReference = scanedCellInfo.reference;
+										if( targetColNumber < tmpReference.col ){
+											// 結合先が自身より後ろの場合
+											return false;
+										}
+										var $tmpCell = $trs.eq(rowIndex).find('>th, >td').eq(scanedCellInfo.domCol);
+										var tmpColspan = Number($tmpCell.attr('colspan'));
+										if( !tmpColspan ){ tmpColspan = 1; }
+										if( tmpColspan >= 2 ){
+											// 2以上の場合のみ、結合されているものとみなす
+											if( colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+												return true;
+											}
+											colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+
+											tmpColspan ++;
+											$tmpCell.attr({'colspan': tmpColspan});
+											return true;
+										}
+										return false;
+									})();
+								}
+								if( !isCombinedCell ){
+									// 実体セルの場合
+									if( scanedCellInfo.reference && scanedTable[rowQueryInfo.section][scanedCellInfo.reference.row].cols[scanedCellInfo.reference.col].rowspan >= 2 && targetColNumber == 0 ){
+										// 0列目に実体がない場合は、tr の先頭に挿入する。
+										$trs.eq(rowIndex).prepend( $newCol );
+									}else{
+										$trs.eq(rowIndex).find('>th, >td').eq(scanedCellInfo.domCol).after( $newCol );
+									}
+								}
 							}
 						});
 

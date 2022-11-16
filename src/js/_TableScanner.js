@@ -28,6 +28,8 @@ module.exports = function( main, $ ){
 					"colspan": null,
 					"rowspan": null,
 					"offset": null,
+					"domRow": null,
+					"domCol": null,
 					"reference": reservedCells[indexRow][indexCol+totalSpanedRows].reference,
 				}
 				totalSpanedRows ++;
@@ -43,6 +45,8 @@ module.exports = function( main, $ ){
 				"colspan": Number($elmCell.attr('colspan') || 1),
 				"rowspan": Number($elmCell.attr('rowspan') || 1),
 				"offset": $elmCell.offset(),
+				"domRow": indexRow,
+				"domCol": indexCol,
 				"reference": null,
 			};
 
@@ -74,6 +78,8 @@ module.exports = function( main, $ ){
 				"colspan": null,
 				"rowspan": null,
 				"offset": null,
+				"domRow": null,
+				"domCol": null,
 				"reference": reservedCells[indexRow][indexCol+totalSpanedRows].reference,
 			}
 			totalSpanedRows ++;
