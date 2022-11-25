@@ -16,6 +16,8 @@ module.exports = function( main, $, $elms ){
 		}) );
 		var $buttons = $elms.toolbarTools.find('.table-tag-editor__tool');
 
+		$elms.toolbarTools.find(`.table-tag-editor__tool--btn-${currentMode}`).addClass('table-tag-editor__tool--on').attr({'disabled': true});
+
 		$elms.toolbarTools.find('.table-tag-editor__tool--btn-contents').on('click.table-tag-editor', function(e){
 			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
 			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});

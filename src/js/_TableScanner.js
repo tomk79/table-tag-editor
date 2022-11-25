@@ -130,7 +130,6 @@ module.exports = function( main, $ ){
 				});
 			});
 		});
-
 		return scanedTable;
 	}
 
