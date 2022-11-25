@@ -34,6 +34,7 @@ module.exports = function( main, $, $elms ){
 							"top": $trElm.offset().top - offset.top + 40 + ($trElm.height() / 2) - 10,
 						})
 						.attr({
+							"data-table-section": rowQueryInfo.section,
 							"data-row-number": index,
 						})
 						.on('click.table-tag-editor', function(e){
@@ -41,13 +42,14 @@ module.exports = function( main, $, $elms ){
 							// 行を削除する
 							var $this = $(this);
 							var targetRowNumber = Number($this.attr('data-row-number'));
+							var targetTableSection = $this.attr('data-table-section');
 							var rowspanIncrementedMemo = {};
-							for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
+							for(var i = 0; i < scanedTable[targetTableSection][targetRowNumber].cols.length; i ++){
 								var isCombinedCell = false;
-								if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
+								if( scanedTable[targetTableSection][targetRowNumber+1] && scanedTable[targetTableSection][targetRowNumber+1].cols[i] && scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference ){
 									// 結合セルの解決
 									isCombinedCell = (function(){
-										var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
+										var tmpReference = scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference;
 										if( targetRowNumber < tmpReference.row ){
 											// 結合先が自身より後ろの場合
 											return false;
@@ -110,7 +112,6 @@ module.exports = function( main, $, $elms ){
 								var colspanIncrementedMemo = {};
 								var $trs = $elms.previewTable.find(rowQueryInfo.query);
 								for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
-									var tagName = 'td';
 									var scanedCellInfo = scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber];
 									var isCombinedCell = false;
 									if(scanedCellInfo.reference){

@@ -35,6 +35,7 @@ module.exports = function( main, $, $elms ){
 							"top": $trElm.offset().top - offset.top + 40 + $trElm.height() - 10,
 						})
 						.attr({
+							"data-table-section": rowQueryInfo.section,
 							"data-row-number": index,
 						})
 						.on('click.table-tag-editor', function(e){
@@ -42,16 +43,17 @@ module.exports = function( main, $, $elms ){
 							// 行を追加する
 							var $this = $(this);
 							var targetRowNumber = Number($this.attr('data-row-number'));
+							var targetTableSection = $this.attr('data-table-section');
 							var $newRow = $('<tr>');
 							var rowspanIncrementedMemo = {};
-							for(var i = 0; i < scanedTable.tbody[targetRowNumber].cols.length; i ++){
+							for(var i = 0; i < scanedTable[targetTableSection][targetRowNumber].cols.length; i ++){
 								var tagName = 'td';
 
 								var isCombinedCell = false;
-								if( scanedTable.tbody[targetRowNumber+1] && scanedTable.tbody[targetRowNumber+1].cols[i] && scanedTable.tbody[targetRowNumber+1].cols[i].reference ){
+								if( scanedTable[targetTableSection][targetRowNumber+1] && scanedTable[targetTableSection][targetRowNumber+1].cols[i] && scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference ){
 									// 結合セルの解決
 									isCombinedCell = (function(){
-										var tmpReference = scanedTable.tbody[targetRowNumber+1].cols[i].reference;
+										var tmpReference = scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference;
 										if( targetRowNumber < tmpReference.row ){
 											// 結合先が自身より後ろの場合
 											return false;
@@ -77,8 +79,8 @@ module.exports = function( main, $, $elms ){
 									// td, or th を決める
 									if( rowQueryInfo.section != 'tbody' ){
 										tagName = 'th';
-									}else if( scanedTable.tbody[targetRowNumber].cols[i].tagName ){
-										tagName = scanedTable.tbody[targetRowNumber].cols[i].tagName;
+									}else if( scanedTable[targetTableSection][targetRowNumber].cols[i].tagName ){
+										tagName = scanedTable[targetTableSection][targetRowNumber].cols[i].tagName;
 									}
 
 									$newRow.append($('<'+tagName+'>')
