@@ -4,6 +4,8 @@
 module.exports = function( main, $, $elms ){
 	var _this = this;
 	var VisualEditorModeContents = require('./visual/_Contents');
+	var VisualEditorModeDeleteRowCols = require('./visual/_DeleteRowCols');
+	var currentMode = "contents";
 
 	/**
 	 * ツールバーをリセットする
@@ -12,10 +14,20 @@ module.exports = function( main, $, $elms ){
 		$elms.toolbarTools.html( main.template('toolbarTools', {
 			"mode": "visual",
 		}) );
+		var $buttons = $elms.toolbarTools.find('.table-tag-editor__tool');
 
 		$elms.toolbarTools.find('.table-tag-editor__tool--btn-contents').on('click.table-tag-editor', function(e){
-			// TODO: 編集モードを変更する
-			console.log('contents');
+			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
+			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});
+			currentMode = "contents";
+			_this.resetUi();
+		});
+
+		$elms.toolbarTools.find('.table-tag-editor__tool--btn-delete-row-col').on('click.table-tag-editor', function(e){
+			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
+			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});
+			currentMode = "delete-row-col";
+			_this.resetUi();
 		});
 	}
 
@@ -41,7 +53,18 @@ module.exports = function( main, $, $elms ){
 	 * UIをリセットする
 	 */
 	this.resetUi = function(){
-		var visualEditorModeContents = new VisualEditorModeContents(main, $, $elms);
-		visualEditorModeContents.init();
+		$elms.visualEditorUi.html('');
+
+		switch( currentMode ){
+			case "delete-row-col":
+				var visualEditorModeDeleteRowCols = new VisualEditorModeDeleteRowCols(main, $, $elms);
+				visualEditorModeDeleteRowCols.init();
+				break;
+			case "contents":
+			default:
+				var visualEditorModeContents = new VisualEditorModeContents(main, $, $elms);
+				visualEditorModeContents.init();
+				break;
+		}
 	}
 }

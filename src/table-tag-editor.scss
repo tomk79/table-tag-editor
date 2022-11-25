@@ -97,9 +97,6 @@
 
 	// UIボタン
 	&__ui-btn {
-		border: 1px solid #7d5;
-		background-color: #fff;
-		color: #7d5;
 		width: 20px;
 		height: 20px;
 		border-radius: 100px;
@@ -109,7 +106,26 @@
 		&:focus,
 		&:hover {
 			opacity: 1;
-			background-color: #bfd;
+		}
+
+		&--add {
+			border: 1px solid #7d5;
+			background-color: #fff;
+			color: #7d5;
+			&:focus,
+			&:hover {
+				background-color: #bfd;
+			}
+		}
+
+		&--delete {
+			border: 1px solid rgb(221, 85, 124);
+			background-color: #fff;
+			color: rgb(221, 85, 124);
+			&:focus,
+			&:hover {
+				background-color: rgb(248, 199, 212);
+			}
 		}
 	}
 
