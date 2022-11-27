@@ -151,6 +151,25 @@ module.exports = function( main, $, $elms ){
 											}
 											return false;
 										})();
+									}else if(scanedCellInfo.colspan >= 2){
+										// 結合セルの結合先が自身の場合の解決
+										isCombinedCell = (function(){
+											var $tmpCell = $trs.eq(scanedCellInfo.domRow).find('>th, >td').eq(scanedCellInfo.domCol);
+											var tmpColspan = Number($tmpCell.attr('colspan'));
+											if( !tmpColspan ){ tmpColspan = 1; }
+											if( tmpColspan >= 2 ){
+												// 2以上の場合のみ、結合されているものとみなす
+												if( colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] ){
+													return true;
+												}
+												colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] = true;
+
+												tmpColspan ++;
+												$tmpCell.attr({'colspan': tmpColspan});
+												return true;
+											}
+											return false;
+										})();
 									}
 									if( !isCombinedCell ){
 										// 実体セルの場合
