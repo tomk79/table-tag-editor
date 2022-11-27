@@ -1,5 +1,5 @@
 /**
- * visual/_contents.js
+ * visual/_AddRowCols.js
  */
 module.exports = function( main, $, $elms ){
 	var _this = this;

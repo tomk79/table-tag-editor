@@ -3,9 +3,9 @@
  */
 module.exports = function( main, $, $elms ){
 	var _this = this;
-	var VisualEditorModeContents = require('./visual/_Contents');
+	var VisualEditorModeAddRowCols = require('./visual/_AddRowCols');
 	var VisualEditorModeDeleteRowCols = require('./visual/_DeleteRowCols');
-	var currentMode = "contents";
+	var currentMode = "add-row-col";
 
 	/**
 	 * ツールバーをリセットする
@@ -18,10 +18,10 @@ module.exports = function( main, $, $elms ){
 
 		$elms.toolbarTools.find(`.table-tag-editor__tool--btn-${currentMode}`).addClass('table-tag-editor__tool--on').attr({'disabled': true});
 
-		$elms.toolbarTools.find('.table-tag-editor__tool--btn-contents').on('click.table-tag-editor', function(e){
+		$elms.toolbarTools.find('.table-tag-editor__tool--btn-add-row-col').on('click.table-tag-editor', function(e){
 			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
 			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});
-			currentMode = "contents";
+			currentMode = "add-row-col";
 			_this.resetUi();
 		});
 
@@ -62,10 +62,10 @@ module.exports = function( main, $, $elms ){
 				var visualEditorModeDeleteRowCols = new VisualEditorModeDeleteRowCols(main, $, $elms);
 				visualEditorModeDeleteRowCols.init();
 				break;
-			case "contents":
+			case "add-row-col":
 			default:
-				var visualEditorModeContents = new VisualEditorModeContents(main, $, $elms);
-				visualEditorModeContents.init();
+				var visualEditorModeAddRowCols = new VisualEditorModeAddRowCols(main, $, $elms);
+				visualEditorModeAddRowCols.init();
 				break;
 		}
 	}
