@@ -60,12 +60,13 @@ module.exports = function( main, $, $elms ){
 										}
 										var $tmpCell = $elms.previewTable.find(rowQueryInfo.query).eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
 										var tmpRowspan = Number($tmpCell.attr('rowspan'));
+										if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+											// 処理済みのセルはスキップ
+											return true;
+										}
 										if( !tmpRowspan ){ tmpRowspan = 1; }
 										if( tmpRowspan >= 2 ){
 											// 2以上の場合のみ、結合されているものとみなす
-											if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-												return true;
-											}
 											rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
 
 											tmpRowspan ++;
@@ -137,12 +138,13 @@ module.exports = function( main, $, $elms ){
 											}
 											var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
 											var tmpColspan = Number($tmpCell.attr('colspan'));
+											if( colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+												// 処理済みのセルはスキップ
+												return true;
+											}
 											if( !tmpColspan ){ tmpColspan = 1; }
 											if( tmpColspan >= 2 ){
 												// 2以上の場合のみ、結合されているものとみなす
-												if( colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-													return true;
-												}
 												colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
 
 												tmpColspan ++;
@@ -156,12 +158,13 @@ module.exports = function( main, $, $elms ){
 										isCombinedCell = (function(){
 											var $tmpCell = $trs.eq(scanedCellInfo.domRow).find('>th, >td').eq(scanedCellInfo.domCol);
 											var tmpColspan = Number($tmpCell.attr('colspan'));
+											if( colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] ){
+												// 処理済みのセルはスキップ
+												return true;
+											}
 											if( !tmpColspan ){ tmpColspan = 1; }
 											if( tmpColspan >= 2 ){
 												// 2以上の場合のみ、結合されているものとみなす
-												if( colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] ){
-													return true;
-												}
 												colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] = true;
 
 												tmpColspan ++;
