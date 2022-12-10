@@ -38,6 +38,15 @@ module.exports = function( elm, options ){
 	}
 
 	/**
+	 * HTMLコードを更新して再初期化する
+	 */
+	this.resetValue = function( htmlSrc ){
+		$elms.targetTextarea.val( htmlSrc );
+		$elms.srcTextarea.val( htmlSrc );
+		visual.update();
+	}
+
+	/**
 	 * テンプレートを取得する
 	 */
 	this.template = function(templateId, data){
