@@ -70,11 +70,14 @@
 	table.table-tag-editor__visual-editor-table {
 		border: 1px solid #999;
 		border-collapse: collapse;
+		box-sizing: border-box;
+
 		th, td {
 			border: 1px solid #999;
 			background-color: #ffffff;
 			padding: 2px 8px;
 			height: 1.2em;
+			box-sizing: border-box;
 		}
 		th {
 			background-color: #f8f8f8;
@@ -97,6 +100,10 @@
 
 	// UIボタン
 	&__ui-btn {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
 		button {
 			width: 20px;
 			height: 20px;

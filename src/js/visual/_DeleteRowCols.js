@@ -31,7 +31,8 @@ module.exports = function( main, $, $elms ){
 						.css({
 							"position": "absolute",
 							"left": 10,
-							"top": $trElm.offset().top - offset.top + 40 + ($trElm.height() / 2) - 10,
+							"top": $trElm.offset().top - offset.top + 40,
+							"height": $trElm.height(),
 						})
 					;
 					$btnAddAfter.find('button')
@@ -100,7 +101,8 @@ module.exports = function( main, $, $elms ){
 					$btnAddAfter
 						.css({
 							"position": "absolute",
-							"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 50 + (scanedTable.tbody[row].cols[col].width / 2) - 0,
+							"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 50,
+							"width": scanedTable.tbody[row].cols[col].width,
 							"top": 10,
 						})
 					;
