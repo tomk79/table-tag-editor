@@ -26,13 +26,14 @@ module.exports = function( main, $, $elms ){
 			$elms.previewTable.find(rowQueryInfo.query)
 				.each(function(index, trElm){
 					var $trElm = $(trElm);
-					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--add"><button type="button">+</button></div>');
+					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--add table-tag-editor__ui-btn--row"><button type="button">+</button></div>');
 					$elms.visualEditorUi.append($btnAddAfter);
 					$btnAddAfter
 						.css({
 							"position": "absolute",
 							"left": 10,
-							"top": $trElm.offset().top - offset.top + 40 + $trElm.height() - 10,
+							"top": $trElm.offset().top - offset.top + 40,
+							"height": $trElm.height(),
 						})
 					;
 					$btnAddAfter.find('button')
@@ -107,13 +108,14 @@ module.exports = function( main, $, $elms ){
 						continue;
 					}
 
-					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--add"><button type="button">+</button></div>');
+					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--add table-tag-editor__ui-btn--col"><button type="button">+</button></div>');
 					$elms.visualEditorUi.append($btnAddAfter);
 					$btnAddAfter
 						.css({
 							"position": "absolute",
-							"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 50 + scanedTable.tbody[row].cols[col].width - 0,
+							"left": scanedTable.tbody[row].cols[col].offset.left - offset.left + 50,
 							"top": 10,
+							"width": scanedTable.tbody[row].cols[col].width,
 						})
 					;
 					$btnAddAfter.find('button')

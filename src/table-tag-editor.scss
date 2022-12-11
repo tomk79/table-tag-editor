@@ -103,8 +103,11 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		pointer-events: none;
 
 		button {
+			pointer-events: all;
+			position: relative;
 			width: 20px;
 			height: 20px;
 			border-radius: 100px;
@@ -125,6 +128,18 @@
 			&:focus,
 			&:hover {
 				background-color: #bfd;
+			}
+		}
+		&.table-tag-editor__ui-btn--add.table-tag-editor__ui-btn--row {
+			align-items: flex-end;
+			button {
+				top: calc(10px + 2px);
+			}
+		}
+		&.table-tag-editor__ui-btn--add.table-tag-editor__ui-btn--col {
+			justify-content: right;
+			button {
+				left: calc(10px + 8px);
 			}
 		}
 

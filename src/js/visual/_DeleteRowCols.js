@@ -25,7 +25,7 @@ module.exports = function( main, $, $elms ){
 			$elms.previewTable.find(rowQueryInfo.query)
 				.each(function(index, trElm){
 					var $trElm = $(trElm);
-					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--delete"><button type="button">-</button></div>');
+					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--delete table-tag-editor__ui-btn--row"><button type="button">-</button></div>');
 					$elms.visualEditorUi.append($btnAddAfter);
 					$btnAddAfter
 						.css({
@@ -96,7 +96,7 @@ module.exports = function( main, $, $elms ){
 						continue;
 					}
 
-					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--delete"><button type="button">-</button></div>');
+					var $btnAddAfter = $('<div class="table-tag-editor__ui-btn table-tag-editor__ui-btn--delete table-tag-editor__ui-btn--col"><button type="button">-</button></div>');
 					$elms.visualEditorUi.append($btnAddAfter);
 					$btnAddAfter
 						.css({
