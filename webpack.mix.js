@@ -35,5 +35,5 @@ mix
 	// table-tag-editor
 	.js('src/table-tag-editor.js', 'dist/')
 	.sass('src/table-tag-editor.scss', 'dist/')
-
+	.sass('src/themes/darkmode.scss', 'dist/themes/')
 ;

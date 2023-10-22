@@ -1,0 +1,81 @@
+.table-tag-editor {
+
+	// --------------------------------------
+	// ツールバー
+	&__toolbar {
+
+		button {
+            color: #ccc;
+			border: 1px solid #333;
+			background-color: #222;
+			&:hover {
+				border: 1px solid #aaa;
+				background-color: #111;
+			}
+			&[disabled],
+			&[disabled]:hover {
+				border: 1px solid #333;
+				background-color: #222;
+				color: #666;
+			}
+		}
+	}
+	&__tool {
+		&--on[disabled] {
+			background-color: #f9f9f9;
+			color: #222;
+		}
+	}
+
+	// --------------------------------------
+	// ビジュアルエディタ
+	table.table-tag-editor__visual-editor-table {
+		border: 1px solid #666;
+
+		th, td {
+			border: 1px solid #666;
+			background-color: #222;
+		}
+		th {
+            background-color: #111;
+		}
+		thead,
+		tfoot {
+			th, td {
+				background-color: #111;
+			}
+		}
+	}
+
+	// UIボタン
+	&__ui-btn {
+		&--add button {
+			border: 1px solid #7d5;
+			background-color: #222;
+			color: #7d5;
+			&:focus,
+			&:hover {
+				background-color: #bfd;
+			}
+		}
+
+		&--delete button {
+			border: 1px solid rgb(221, 85, 124);
+			background-color: #222;
+			color: rgb(221, 85, 124);
+			&:focus,
+			&:hover {
+				background-color: rgb(248, 199, 212);
+			}
+		}
+	}
+
+
+	// --------------------------------------
+	// HTMLソースエディタ
+	textarea.table-tag-editor__src {
+        color: #ccc;
+		background-color: #1116;
+		border: 1px solid #666;
+	}
+}
