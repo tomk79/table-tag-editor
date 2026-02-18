@@ -75,12 +75,21 @@ module.exports = function( main, $, $elms ){
 									}
 								}
 								// 削除行のセルを参照している次の行のスロットについて、論理列順の DOM 挿入位置を算出
+								// rowspan>=2 のセルは「値を1マイナスして次の行に移す」
 								var domPos = 0;
+								var movedCellsMemo = {};
 								for(var i = 0; i < rowBelow.cols.length; i ++){
 									var belowCellInfo = rowBelow.cols[i];
 									if( !belowCellInfo ){ continue; }
 									if( belowCellInfo.reference && belowCellInfo.reference.row === targetRowNumber ){
-										placeholdersToInsert.push({ domPos: domPos, tagName: belowCellInfo.tagName || 'td' });
+										var refCellInfo = scanedTable[targetTableSection][targetRowNumber].cols[belowCellInfo.reference.col];
+										var refKey = belowCellInfo.reference.domRow + ":" + belowCellInfo.reference.domCol;
+										if( refCellInfo && refCellInfo.rowspan >= 2 && !movedCellsMemo[refKey] ){
+											movedCellsMemo[refKey] = true;
+											placeholdersToInsert.push({ domPos: domPos, tagName: belowCellInfo.tagName || 'td', moveCell: true, reference: belowCellInfo.reference });
+										} else if( !refCellInfo || refCellInfo.rowspan < 2 ){
+											placeholdersToInsert.push({ domPos: domPos, tagName: belowCellInfo.tagName || 'td' });
+										}
 										domPos ++;
 									}else if( !belowCellInfo.reference ){
 										domPos ++;
@@ -109,12 +118,31 @@ module.exports = function( main, $, $elms ){
 									}
 								}
 							}
-							// 次の行が削除行のセルを参照していた場合、正しい DOM 位置にプレースホルダを挿入してから行を削除
+							// 次の行が削除行のセルを参照していた場合、正しい DOM 位置にプレースホルダまたは移動セルを挿入してから行を削除
+							for( var j = 0; j < placeholdersToInsert.length; j ++ ){
+								var item = placeholdersToInsert[j];
+								if( item.moveCell ){
+									item.$cell = $trs.eq(targetRowNumber).find('>th, >td').eq(item.reference.domCol);
+								}
+							}
 							placeholdersToInsert.sort(function(a, b){ return b.domPos - a.domPos; });
 							var $rowBelow = $trs.eq(targetRowNumber + 1);
 							for( var j = 0; j < placeholdersToInsert.length; j ++ ){
 								var item = placeholdersToInsert[j];
-								var $newCell = $('<' + item.tagName + '></' + item.tagName + '>');
+								var $newCell;
+								if( item.moveCell && item.$cell && item.$cell.length ){
+									$newCell = item.$cell.clone();
+									var tmpRowspan = Number($newCell.attr('rowspan')) || 1;
+									tmpRowspan --;
+									if( tmpRowspan >= 2 ){
+										$newCell.attr('rowspan', tmpRowspan);
+									}else{
+										$newCell.removeAttr('rowspan');
+									}
+									item.$cell.remove();
+								}else{
+									$newCell = $('<' + item.tagName + '></' + item.tagName + '>');
+								}
 								var $cells = $rowBelow.find('>th, >td');
 								if( item.domPos < $cells.length ){
 									$cells.eq(item.domPos).before($newCell);
@@ -198,22 +226,35 @@ module.exports = function( main, $, $elms ){
 												}else{
 													$tmpCell.removeAttr('colspan');
 												}
+												// 値を1マイナスして次の列に移す: 削除列スロットにプレースホルダを挿入し、そのプレースホルダを削除対象にする
+												var tagName = ( scanedCellInfo.tagName ) ? scanedCellInfo.tagName : 'td';
+												$tmpCell.before($('<' + tagName + '></' + tagName + '>'));
+												cellsToRemove.push({ rowIndex: rowIndex, domCol: scanedCellInfo.domCol });
 											}
 										}
 										isCombinedCell = true;
 									}
 									if( !isCombinedCell ){
-										if( !scanedCellInfo.reference && scanedCellInfo.colspan && scanedCellInfo.colspan >= 2 ){
-											// 実体自身で、かつcolspanしている場合、削除しない
-										}else{
-											cellsToRemove.push({ rowIndex: rowIndex, domCol: scanedCellInfo.domCol });
-										}
+										cellsToRemove.push({ rowIndex: rowIndex, domCol: scanedCellInfo.domCol });
 									}
 								}
 								// 第2段階: 下の行からセルを削除（上の行を先に削除すると domCol がずれるため）
 								for( var i = cellsToRemove.length - 1; i >= 0; i -- ){
 									var target = cellsToRemove[i];
-									$trs.eq(target.rowIndex).find('>th, >td').eq(target.domCol).remove();
+									var $row = $trs.eq(target.rowIndex);
+									$row.find('>th, >td').eq(target.domCol).remove();
+									// セル削除後にその行に DOM のセルが残らない場合、参照でないスロット（実体セルだった列）にだけプレースホルダを挿入。
+									// 残りがすべて rowspan の参照の場合は挿入しない（<tr> が空のままが正しい）
+									if( $row.find('>th, >td').length === 0 ){
+										var rowCols = scanedTable[rowQueryInfo.section][target.rowIndex].cols;
+										for( var colIdx = 0; colIdx < rowCols.length; colIdx ++ ){
+											if( colIdx === targetColNumber ){ continue; }
+											var colInfo = rowCols[colIdx];
+											if( colInfo && colInfo.reference ){ continue; }
+											var tagName = ( colInfo && colInfo.tagName ) ? colInfo.tagName : 'td';
+											$row.append($('<' + tagName + '></' + tagName + '>'));
+										}
+									}
 								}
 							});
 
