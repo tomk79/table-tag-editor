@@ -78,6 +78,11 @@
 			padding: 2px 8px;
 			height: 1.2em;
 			box-sizing: border-box;
+
+			&.table-tag-editor__cell-selection {
+				background-color: #cce5ff;
+				outline: 2px solid #0066cc;
+			}
 		}
 		th {
 			background-color: #f8f8f8;
@@ -140,6 +145,20 @@
 			justify-content: right;
 			button {
 				left: calc(10px + 8px);
+			}
+		}
+
+		&--merge-cells {
+			flex-direction: row;
+			gap: 4px;
+			button {
+				border: 1px solid #66a;
+				background-color: #fff;
+				color: #66a;
+				&:focus,
+				&:hover {
+					background-color: #eef;
+				}
 			}
 		}
 

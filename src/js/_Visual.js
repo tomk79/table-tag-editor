@@ -5,6 +5,7 @@ module.exports = function( main, $, $elms ){
 	var _this = this;
 	var VisualEditorModeAddRowCols = require('./visual/_AddRowCols');
 	var VisualEditorModeDeleteRowCols = require('./visual/_DeleteRowCols');
+	var VisualEditorModeMergeCells = require('./visual/_MergeCells');
 	var currentMode = "add-row-col";
 
 	/**
@@ -29,6 +30,13 @@ module.exports = function( main, $, $elms ){
 			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
 			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});
 			currentMode = "delete-row-col";
+			_this.resetUi();
+		});
+
+		$elms.toolbarTools.find('.table-tag-editor__tool--btn-merge-cells').on('click.table-tag-editor', function(e){
+			$buttons.removeClass('table-tag-editor__tool--on').attr({'disabled': false});
+			$(this).addClass('table-tag-editor__tool--on').attr({'disabled': true});
+			currentMode = "merge-cells";
 			_this.resetUi();
 		});
 	}
@@ -61,6 +69,10 @@ module.exports = function( main, $, $elms ){
 			case "delete-row-col":
 				var visualEditorModeDeleteRowCols = new VisualEditorModeDeleteRowCols(main, $, $elms);
 				visualEditorModeDeleteRowCols.init();
+				break;
+			case "merge-cells":
+				var visualEditorModeMergeCells = new VisualEditorModeMergeCells(main, $, $elms);
+				visualEditorModeMergeCells.init();
 				break;
 			case "add-row-col":
 			default:
