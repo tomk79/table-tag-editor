@@ -47,37 +47,51 @@ module.exports = function( main, $, $elms ){
 							var targetRowNumber = Number($this.attr('data-row-number'));
 							var targetTableSection = $this.attr('data-table-section');
 							var rowspanIncrementedMemo = {};
+							var $trs = $elms.previewTable.find(rowQueryInfo.query);
+							// 削除する行の下の行で、削除行にまたがる rowspan の解決（下の行の参照を減らす）
 							for(var i = 0; i < scanedTable[targetTableSection][targetRowNumber].cols.length; i ++){
-								var isCombinedCell = false;
 								if( scanedTable[targetTableSection][targetRowNumber+1] && scanedTable[targetTableSection][targetRowNumber+1].cols[i] && scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference ){
-									// 結合セルの解決
-									isCombinedCell = (function(){
-										var tmpReference = scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference;
-										if( targetRowNumber < tmpReference.row ){
-											// 結合先が自身より後ろの場合
-											return false;
-										}
-										var $tmpCell = $elms.previewTable.find(rowQueryInfo.query).eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
-										var tmpRowspan = Number($tmpCell.attr('rowspan'));
-										if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-											// 処理済みのセルはスキップ
-											return true;
-										}
-										if( !tmpRowspan ){ tmpRowspan = 1; }
+									var tmpReference = scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference;
+									if( targetRowNumber < tmpReference.row ){
+										continue;
+									}
+									var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
+									var tmpRowspan = Number($tmpCell.attr('rowspan'));
+									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+										continue;
+									}
+									if( !tmpRowspan ){ tmpRowspan = 1; }
+									if( tmpRowspan >= 2 ){
+										rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+										tmpRowspan --;
 										if( tmpRowspan >= 2 ){
-											// 2以上の場合のみ、結合されているものとみなす
-											rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
-
-											tmpRowspan --;
-											if( tmpRowspan >= 2 ){
-												$tmpCell.attr({'rowspan': tmpRowspan});
-											}else{
-												$tmpCell.removeAttr('rowspan');
-											}
-											return true;
+											$tmpCell.attr({'rowspan': tmpRowspan});
+										}else{
+											$tmpCell.removeAttr('rowspan');
 										}
-										return false;
-									})();
+									}
+								}
+							}
+							// 削除する行自体が上からの rowspan の参照になっている場合の解決
+							for(var i = 0; i < scanedTable[targetTableSection][targetRowNumber].cols.length; i ++){
+								var cellInfo = scanedTable[targetTableSection][targetRowNumber].cols[i];
+								if( cellInfo && cellInfo.reference && cellInfo.reference.row < targetRowNumber ){
+									var tmpReference = cellInfo.reference;
+									var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
+									var tmpRowspan = Number($tmpCell.attr('rowspan'));
+									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+										continue;
+									}
+									if( !tmpRowspan ){ tmpRowspan = 1; }
+									if( tmpRowspan >= 2 ){
+										rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+										tmpRowspan --;
+										if( tmpRowspan >= 2 ){
+											$tmpCell.attr({'rowspan': tmpRowspan});
+										}else{
+											$tmpCell.removeAttr('rowspan');
+										}
+									}
 								}
 							}
 							$elms.previewTable.find(rowQueryInfo.query).eq(targetRowNumber).remove();
@@ -118,49 +132,36 @@ module.exports = function( main, $, $elms ){
 							rowQueryList.forEach(function(rowQueryInfo, rowQueryIndex){
 								var colspanIncrementedMemo = {};
 								var $trs = $elms.previewTable.find(rowQueryInfo.query);
+								var cellsToRemove = [];
+								// 第1段階: colspan の減算のみ行う（DOM を変えずに参照を正しく解決）
 								for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
 									var scanedCellInfo = scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber];
 									var isCombinedCell = false;
 									if(scanedCellInfo.reference){
-										// 結合セルの解決
-										isCombinedCell = (function(){
-											var tmpReference = scanedCellInfo.reference;
-											if( targetColNumber < tmpReference.col ){
-												// 結合先が自身より後ろの場合
-												return false;
-											}
+										var tmpReference = scanedCellInfo.reference;
+										if( targetColNumber >= tmpReference.col ){
 											var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
 											var tmpColspan = Number($tmpCell.attr('colspan'));
-											if( colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-												// 処理済みのセルはスキップ
-												return true;
-											}
-											if( !tmpColspan ){ tmpColspan = 1; }
-											if( tmpColspan >= 2 ){
-												// 2以上の場合のみ、結合されているものとみなす
-												colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
-												tmpColspan --;
+											if( !colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+												if( !tmpColspan ){ tmpColspan = 1; }
 												if( tmpColspan >= 2 ){
-													$tmpCell.attr({'colspan': tmpColspan});
-												}else{
-													$tmpCell.removeAttr('colspan');
+													colspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+													tmpColspan --;
+													if( tmpColspan >= 2 ){
+														$tmpCell.attr({'colspan': tmpColspan});
+													}else{
+														$tmpCell.removeAttr('colspan');
+													}
 												}
-												return true;
 											}
-											return false;
-										})();
+										}
+										isCombinedCell = true;
 									}else if(scanedCellInfo.colspan >= 2){
-										// 結合セルの結合先が自身の場合の解決
-										isCombinedCell = (function(){
-											var $tmpCell = $trs.eq(scanedCellInfo.domRow).find('>th, >td').eq(scanedCellInfo.domCol);
-											var tmpColspan = Number($tmpCell.attr('colspan'));
-											if( colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] ){
-												// 処理済みのセルはスキップ
-												return true;
-											}
+										var $tmpCell = $trs.eq(scanedCellInfo.domRow).find('>th, >td').eq(scanedCellInfo.domCol);
+										var tmpColspan = Number($tmpCell.attr('colspan'));
+										if( !colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] ){
 											if( !tmpColspan ){ tmpColspan = 1; }
 											if( tmpColspan >= 2 ){
-												// 2以上の場合のみ、結合されているものとみなす
 												colspanIncrementedMemo[scanedCellInfo.domRow+":"+scanedCellInfo.domCol] = true;
 												tmpColspan --;
 												if( tmpColspan >= 2 ){
@@ -168,20 +169,22 @@ module.exports = function( main, $, $elms ){
 												}else{
 													$tmpCell.removeAttr('colspan');
 												}
-												return true;
 											}
-											return false;
-										})();
+										}
+										isCombinedCell = true;
 									}
 									if( !isCombinedCell ){
-										// 実体セルの削除
 										if( !scanedCellInfo.reference && scanedCellInfo.colspan && scanedCellInfo.colspan >= 2 ){
 											// 実体自身で、かつcolspanしている場合、削除しない
 										}else{
-											$trs.eq(rowIndex).find('>th, >td').eq(scanedCellInfo.domCol).remove();
-											colspanIncrementedMemo[rowIndex+":"+scanedCellInfo.domCol] = true;
+											cellsToRemove.push({ rowIndex: rowIndex, domCol: scanedCellInfo.domCol });
 										}
 									}
+								}
+								// 第2段階: 下の行からセルを削除（上の行を先に削除すると domCol がずれるため）
+								for( var i = cellsToRemove.length - 1; i >= 0; i -- ){
+									var target = cellsToRemove[i];
+									$trs.eq(target.rowIndex).find('>th, >td').eq(target.domCol).remove();
 								}
 							});
 
