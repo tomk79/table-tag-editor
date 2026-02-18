@@ -150,14 +150,28 @@
 
 		&--merge-cells {
 			flex-direction: row;
-			gap: 4px;
+			gap: 8px;
 			button {
+				width: auto;
+				height: auto;
+				padding: 4px 12px;
+				border-radius: 5px;
+				font-size: 12px;
+				white-space: nowrap;
+				line-height: 1;
 				border: 1px solid #66a;
 				background-color: #fff;
 				color: #66a;
 				&:focus,
 				&:hover {
 					background-color: #eef;
+				}
+				&[disabled],
+				&[disabled]:hover {
+					border: 1px solid #ddd;
+					background-color: #fff;
+					color: #ddd;
+					cursor: auto;
 				}
 			}
 		}
