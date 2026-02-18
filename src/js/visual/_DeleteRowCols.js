@@ -47,28 +47,43 @@ module.exports = function( main, $, $elms ){
 							var targetRowNumber = Number($this.attr('data-row-number'));
 							var targetTableSection = $this.attr('data-table-section');
 							var rowspanIncrementedMemo = {};
+							var placeholdersToInsert = [];
 							var $trs = $elms.previewTable.find(rowQueryInfo.query);
-							// 削除する行の下の行で、削除行にまたがる rowspan の解決（下の行の参照を減らす）
-							for(var i = 0; i < scanedTable[targetTableSection][targetRowNumber].cols.length; i ++){
-								if( scanedTable[targetTableSection][targetRowNumber+1] && scanedTable[targetTableSection][targetRowNumber+1].cols[i] && scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference ){
-									var tmpReference = scanedTable[targetTableSection][targetRowNumber+1].cols[i].reference;
-									if( targetRowNumber < tmpReference.row ){
-										continue;
-									}
-									var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
-									var tmpRowspan = Number($tmpCell.attr('rowspan'));
-									if( rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
-										continue;
-									}
-									if( !tmpRowspan ){ tmpRowspan = 1; }
-									if( tmpRowspan >= 2 ){
-										rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
-										tmpRowspan --;
-										if( tmpRowspan >= 2 ){
-											$tmpCell.attr({'rowspan': tmpRowspan});
-										}else{
-											$tmpCell.removeAttr('rowspan');
+							var rowBelow = scanedTable[targetTableSection][targetRowNumber+1];
+							// 削除する行の下の行で、削除行にまたがる rowspan の解決
+							if( rowBelow ){
+								for(var i = 0; i < rowBelow.cols.length; i ++){
+									var belowCellInfo = rowBelow.cols[i];
+									if( !belowCellInfo || !belowCellInfo.reference ){ continue; }
+									var tmpReference = belowCellInfo.reference;
+									if( tmpReference.row < targetRowNumber ){
+										// 参照先が削除行より上: rowspan を 1 減らす
+										var $tmpCell = $trs.eq(tmpReference.domRow).find('>th, >td').eq(tmpReference.domCol);
+										var tmpRowspan = Number($tmpCell.attr('rowspan'));
+										if( !rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] ){
+											if( !tmpRowspan ){ tmpRowspan = 1; }
+											if( tmpRowspan >= 2 ){
+												rowspanIncrementedMemo[tmpReference.domRow+":"+tmpReference.domCol] = true;
+												tmpRowspan --;
+												if( tmpRowspan >= 2 ){
+													$tmpCell.attr({'rowspan': tmpRowspan});
+												}else{
+													$tmpCell.removeAttr('rowspan');
+												}
+											}
 										}
+									}
+								}
+								// 削除行のセルを参照している次の行のスロットについて、論理列順の DOM 挿入位置を算出
+								var domPos = 0;
+								for(var i = 0; i < rowBelow.cols.length; i ++){
+									var belowCellInfo = rowBelow.cols[i];
+									if( !belowCellInfo ){ continue; }
+									if( belowCellInfo.reference && belowCellInfo.reference.row === targetRowNumber ){
+										placeholdersToInsert.push({ domPos: domPos, tagName: belowCellInfo.tagName || 'td' });
+										domPos ++;
+									}else if( !belowCellInfo.reference ){
+										domPos ++;
 									}
 								}
 							}
@@ -92,6 +107,19 @@ module.exports = function( main, $, $elms ){
 											$tmpCell.removeAttr('rowspan');
 										}
 									}
+								}
+							}
+							// 次の行が削除行のセルを参照していた場合、正しい DOM 位置にプレースホルダを挿入してから行を削除
+							placeholdersToInsert.sort(function(a, b){ return b.domPos - a.domPos; });
+							var $rowBelow = $trs.eq(targetRowNumber + 1);
+							for( var j = 0; j < placeholdersToInsert.length; j ++ ){
+								var item = placeholdersToInsert[j];
+								var $newCell = $('<' + item.tagName + '></' + item.tagName + '>');
+								var $cells = $rowBelow.find('>th, >td');
+								if( item.domPos < $cells.length ){
+									$cells.eq(item.domPos).before($newCell);
+								}else{
+									$rowBelow.append($newCell);
 								}
 							}
 							$elms.previewTable.find(rowQueryInfo.query).eq(targetRowNumber).remove();
@@ -136,6 +164,7 @@ module.exports = function( main, $, $elms ){
 								// 第1段階: colspan の減算のみ行う（DOM を変えずに参照を正しく解決）
 								for( var rowIndex = 0; rowIndex < scanedTable[rowQueryInfo.section].length; rowIndex ++ ){
 									var scanedCellInfo = scanedTable[rowQueryInfo.section][rowIndex].cols[targetColNumber];
+									if( !scanedCellInfo ){ continue; }
 									var isCombinedCell = false;
 									if(scanedCellInfo.reference){
 										var tmpReference = scanedCellInfo.reference;
