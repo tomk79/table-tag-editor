@@ -208,4 +208,87 @@
 	&+textarea {
 		display: none !important;
 	}
+
+	// --------------------------------------
+	// ダークテーマ (data-appearance="dark")
+	&[data-appearance="dark"] {
+		.table-tag-editor__toolbar button {
+			border-color: #555;
+			background-color: #333;
+			color: #eee;
+			&:hover {
+				border-color: #888;
+				background-color: #444;
+			}
+			&[disabled],
+			&[disabled]:hover {
+				border-color: #555;
+				background-color: #333;
+				color: #555;
+			}
+		}
+		.table-tag-editor__tool--on[disabled] {
+			background-color: #fff;
+			color: #333;
+		}
+		table.table-tag-editor__visual-editor-table {
+			border-color: #666;
+			th, td {
+				border-color: #666;
+				background-color: #2a2a2a;
+				color: #eee;
+				&.table-tag-editor__cell-selection {
+					background-color: #1a3a5a;
+					outline-color: #4a9eff;
+				}
+			}
+			th {
+				background-color: #333;
+			}
+			thead,
+			tfoot {
+				th, td {
+					background-color: #3a3a3a;
+				}
+			}
+		}
+		.table-tag-editor__ui-btn--add button {
+			border-color: #5a9a4a;
+			background-color: #333;
+			color: #7d5;
+			&:focus,
+			&:hover {
+				background-color: #2a4a24;
+			}
+		}
+		.table-tag-editor__ui-btn--merge-cells button {
+			border-color: #5a5a99;
+			background-color: #333;
+			color: #88a;
+			&:focus,
+			&:hover {
+				background-color: #2a2a4a;
+			}
+			&[disabled],
+			&[disabled]:hover {
+				border-color: #555;
+				background-color: #333;
+				color: #555;
+			}
+		}
+		.table-tag-editor__ui-btn--delete button {
+			border-color: rgb(180, 60, 90);
+			background-color: #333;
+			color: rgb(240, 150, 170);
+			&:focus,
+			&:hover {
+				background-color: rgb(80, 30, 45);
+			}
+		}
+		textarea.table-tag-editor__src {
+			color: #eee;
+			background-color: #2a2a2a;
+			border-color: #666;
+		}
+	}
 }

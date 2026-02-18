@@ -23,6 +23,7 @@ module.exports = function( elm, options ){
 
 	options = options || {};
 	options.lang = options.lang || 'en';
+	options.appearance = options.appearance || 'auto'; // 'dark' | 'light' | 'auto'
 
 	/**
 	 * 編集内容を保存する
@@ -62,11 +63,31 @@ module.exports = function( elm, options ){
 		return options[key];
 	}
 
+	/**
+	 * appearance（ダーク/ライトテーマ）を適用する
+	 */
+	function applyAppearance(){
+		var appearance = options.appearance;
+		var resolved = appearance;
+		if( appearance === 'auto' && window.matchMedia ){
+			resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+		}else if( appearance !== 'dark' && appearance !== 'light' ){
+			resolved = 'light';
+		}
+		$elms.main.attr('data-appearance', resolved);
+	}
+
 	// --------------------------------------
 	// Initialize
 	new Promise(function(rlv){rlv();})
 		.then(function(){ return new Promise(function(rlv, rjt){
 			$elms.targetTextarea.before( $elms.main );
+
+			// appearance を適用
+			applyAppearance();
+			if( options.appearance === 'auto' && window.matchMedia ){
+				window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyAppearance);
+			}
 
 			$elms.toolbar = $elms.main.find('.table-tag-editor__toolbar');
 			$elms.toolbarTools = $elms.main.find('.table-tag-editor__toolbar-tools');
