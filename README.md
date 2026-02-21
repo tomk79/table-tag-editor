@@ -26,7 +26,7 @@ var tableTagEditor = new TableTagEditor(
 
 ## 更新履歴 - Change log
 
-### @tomk79/table-tag-editor v0.1.0 (リリース日未定)
+### @tomk79/table-tag-editor v0.1.0 (2026年2月21日)
 
 - Initial Release.
 
